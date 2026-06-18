@@ -38,17 +38,17 @@ the whole product flow works without Docker, cloud credentials, or a GPU.
 
 ```mermaid
 flowchart TB
-    subgraph apps
+    subgraph apps["apps"]
         web["apps/web<br/>Next.js 15 review UI"]
-        orch["apps/orchestrator<br/>NestJS API · the core"]
+        orch["apps/orchestrator<br/>NestJS API - the core"]
     end
-    subgraph packages
+    subgraph packages["packages"]
         contracts["packages/contracts<br/>shared Zod schemas"]
     end
-    subgraph services
+    subgraph services["services"]
         detector["services/detector<br/>FastAPI mock detector"]
     end
-    subgraph infra
+    subgraph infra["infra"]
         tf["infra/terraform<br/>AWS skeleton"]
     end
 
@@ -113,7 +113,7 @@ sequenceDiagram
     K-->>O: ProcessResult (sync mock, or async webhook)
     O->>O: persist detections, schedules, budget (one transaction)
     U->>W: Review detections, recalculate budget, export
-    W->>O: PATCH/POST detections · budget · export.csv
+    W->>O: PATCH/POST detections, budget, export.csv
     O-->>W: updated data
 ```
 
@@ -122,6 +122,8 @@ sequenceDiagram
 ## Conventions used in these docs
 
 - **Diagrams** are [Mermaid](https://mermaid.js.org/) and render natively on GitHub.
+- Run `pnpm docs:check` after editing docs to catch broken local links, bad anchors,
+  unclosed code fences, and legacy Mermaid edge-label syntax.
 - **Paths** are relative to the repository root unless noted.
 - **`code font`** marks files, identifiers, env vars, and commands.
 - Callouts:

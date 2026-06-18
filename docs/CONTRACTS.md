@@ -27,7 +27,7 @@ flowchart LR
     contracts["@auto-estimator/contracts"]
     contracts -->|ProcessRequest| dispatch["orchestrator: build & dispatch"]
     contracts -->|ProcessResult| ingest["orchestrator: applyWorkerResult (validate)"]
-    contracts -->|Detector req/res| worker["worker → detector"]
+    contracts -->|Detector req/res| worker["worker to detector"]
     contracts -.->|types| web["web UI"]
 ```
 
@@ -118,7 +118,7 @@ sequenceDiagram
     participant K as Worker
     participant O as Orchestrator
     K->>O: POST /api/worker/webhooks/pipeline-completed
-    Note right of K: X-Auto-Estimator-Event: pipeline.completed<br/>X-Auto-Estimator-Signature: sha256=<hmac><br/>X-Auto-Estimator-Project-ID: <id>
+    Note right of K: X-Auto-Estimator-Event: pipeline.completed<br/>X-Auto-Estimator-Signature: sha256=hmac<br/>X-Auto-Estimator-Project-ID: project id
     O->>O: event header == "pipeline.completed"? else 401
     O->>O: HMAC(raw body, WORKER_WEBHOOK_SECRET) timing-safe? else 401
     O->>O: ProcessResultSchema.parse(body)

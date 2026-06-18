@@ -283,13 +283,13 @@ flowchart TB
     A[createProject] -->|Project draft| B[uploadDocument]
     B -->|Document + status uploaded| C[startProcessing]
     C -->|ProcessingJob queued + status queued| D{applyWorkerResult}
-    D -->|WebhookEvent · WorkerResult| E[PanelSchedule rows replaced]
+    D -->|WebhookEvent and WorkerResult| E[PanelSchedule rows replaced]
     D --> F[DetectedSymbol rows replaced]
     D --> G{worker budget?}
     G -->|yes| H[Budget + line items verbatim]
-    G -->|no| I[recalc Budget from detections × prices]
-    D -->|status → needs_review / complete / failed| J[review & recalc loop]
-    J -->|DetectionReview rows · new Budget| J
+    G -->|no| I[recalc Budget from detections and prices]
+    D -->|status to needs_review / complete / failed| J[review & recalc loop]
+    J -->|DetectionReview rows and new Budget| J
 ```
 
 All writes inside `applyWorkerResult` and `recalculate` happen in a **single

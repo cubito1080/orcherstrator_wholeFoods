@@ -36,7 +36,7 @@ infrastructure shell* around it.
 
 ```mermaid
 flowchart TB
-    web["apps/web · Next.js"] -->|/api| orch["apps/orchestrator · NestJS"]
+    web["apps/web - Next.js"] -->|/api| orch["apps/orchestrator - NestJS"]
     orch -.->|types + validation| contracts["packages/contracts"]
     web -.->|types| contracts
     orch -->|dispatch| worker(["external worker + detector"])

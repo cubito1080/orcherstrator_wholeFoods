@@ -93,7 +93,7 @@ is missing.
 ```mermaid
 flowchart LR
     env[process.env] --> f["buildAppConfig()"]
-    f -->|dev| defaults["safe defaults<br/>(e.g. JWT_SECRET=local-dev-…)"]
+    f -->|dev| defaults["safe defaults<br/>(e.g. JWT_SECRET=local-dev)"]
     f -->|production + missing| boom["throw: Missing required<br/>environment variables"]
     f --> cfg["AppConfig (frozen, typed)"]
 ```

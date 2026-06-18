@@ -15,7 +15,7 @@ environment, how it is validated, and which run modes the variables select.
 ```mermaid
 flowchart LR
     env["process.env<br/>(+ .env via @nestjs/config)"] --> build["buildAppConfig()"]
-    build -->|missing required in prod| fail([❌ throw & refuse to boot])
+    build -->|missing required in prod| fail(["throw and refuse to boot"])
     build -->|ok| cfg["AppConfig"]
     cfg --> g1["jwt"]
     cfg --> g2["auth"]
@@ -118,16 +118,16 @@ The FastAPI detector (`services/detector`) is configured separately — see
 flowchart LR
     subgraph W[WORKER_MODE]
         w1["mock<br/>sync, no external call"]
-        w2["http → WORKER_HTTP_URL"]
-        w3["sqs → SQS_QUEUE_URL"]
+        w2["http to WORKER_HTTP_URL"]
+        w3["sqs to SQS_QUEUE_URL"]
     end
     subgraph S[STORAGE_MODE]
-        s1["local → LOCAL_STORAGE_DIR"]
-        s2["s3 → S3_BUCKET (+S3_ENDPOINT)"]
+        s1["local to LOCAL_STORAGE_DIR"]
+        s2["s3 to S3_BUCKET (+S3_ENDPOINT)"]
     end
     subgraph D[DB_TYPE]
-        d1["sqljs → SQLJS_DB_PATH"]
-        d2["postgres → DATABASE_URL"]
+        d1["sqljs to SQLJS_DB_PATH"]
+        d2["postgres to DATABASE_URL"]
     end
 ```
 

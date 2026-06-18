@@ -48,17 +48,17 @@ Who and what interacts with the platform.
 
 ```mermaid
 flowchart TB
-    estimator([👤 Estimator / Reviewer])
-    worker([🤖 AI Worker<br/>/home/jerov/workspace/construction])
+    estimator(["Estimator / Reviewer"])
+    worker(["AI Worker<br/>/home/jerov/workspace/construction"])
 
-    subgraph platform[Auto Estimator Platform]
-        web[Web UI<br/>Next.js]
-        orch[Orchestrator API<br/>NestJS]
-        det[Detector<br/>FastAPI mock]
+    subgraph platform["Auto Estimator Platform"]
+        web["Web UI<br/>Next.js"]
+        orch["Orchestrator API<br/>NestJS"]
+        det["Detector<br/>FastAPI mock"]
     end
 
-    db[(PostgreSQL / SQL.js)]
-    store[(S3 / local disk)]
+    db[("PostgreSQL / SQL.js")]
+    store[("S3 / local disk")]
     queue[[SQS queue]]
 
     estimator -->|reviews & exports| web
@@ -83,13 +83,13 @@ A closer look at what runs where and how data moves between processes.
 
 ```mermaid
 flowchart LR
-    subgraph browser[Browser]
-        pages["App Router pages<br/>projects · review · budget · price-catalog"]
+    subgraph browser["Browser"]
+        pages["App Router pages<br/>projects, review, budget, price-catalog"]
         client["api-client + useAsyncData"]
         pages --> client
     end
 
-    subgraph orchestrator[Orchestrator · NestJS]
+    subgraph orchestrator["Orchestrator - NestJS"]
         ctl["Controllers<br/>(HTTP edge)"]
         svc["Domain services<br/>(business logic)"]
         repo["TypeORM repositories"]
@@ -98,17 +98,17 @@ flowchart LR
 
     contracts["@auto-estimator/contracts<br/>(Zod schemas + types)"]
 
-    subgraph data[Data plane]
-        db[(Database)]
-        fs[(PDF storage)]
+    subgraph data["Data plane"]
+        db[("Database")]
+        fs[("PDF storage")]
     end
 
     dispatch{{WorkerDispatchStrategy}}
-    workerproc([Worker process])
+    workerproc(["Worker process"])
 
     client -->|fetch JSON| ctl
-    pages -. import type .-> contracts
-    svc -. validate .-> contracts
+    pages -.->|import type| contracts
+    svc -.->|validate| contracts
     repo --> db
     svc --> fs
     svc --> dispatch
@@ -120,11 +120,11 @@ flowchart LR
 
 ```mermaid
 flowchart TB
-    A["Controllers — translate HTTP ⇄ service calls, no business logic"]
-    B["Domain services — business rules, orchestration, transactions"]
-    C["Strategies & infra adapters — storage, worker dispatch, JWT"]
-    D["Persistence — TypeORM entities & repositories"]
-    E["Config — typed AppConfig (APP_CONFIG)"]
+    A["Controllers - translate HTTP to service calls"]
+    B["Domain services - business rules, orchestration, transactions"]
+    C["Strategies and infra adapters - storage, worker dispatch, JWT"]
+    D["Persistence - TypeORM entities and repositories"]
+    E["Config - typed AppConfig (APP_CONFIG)"]
     A --> B
     B --> C
     B --> D
@@ -145,8 +145,8 @@ flowchart TB
     classDef infra fill:#334155,color:#fff,stroke:#1f2937;
     classDef feature fill:#ffffff,color:#18202a,stroke:#d7dce2;
 
-    Config["AppConfigModule 🌐<br/>APP_CONFIG"]:::global
-    Common["CommonModule 🌐<br/>TransactionRunner"]:::global
+    Config["AppConfigModule<br/>APP_CONFIG"]:::global
+    Common["CommonModule<br/>TransactionRunner"]:::global
     DB["DatabaseModule<br/>TypeORM root"]:::global
     Persist["PersistenceModule<br/>repositories"]:::infra
     Storage["StorageModule<br/>STORAGE"]:::infra
@@ -222,13 +222,13 @@ sequenceDiagram
 
     U->>C: POST /api/projects/:id/upload (multipart)
     C->>P: uploadDocument(id, file)
-    P->>P: getProject(id) — 404 if missing
+    P->>P: getProject(id) - 404 if missing
     P->>D: store(project, file)
     D->>D: validate mimetype == application/pdf
     D->>S: putPdf(projectId, file)
     S-->>D: { bucket, key }
     D->>DB: save DocumentEntity
-    P->>SM: assert(current → uploaded)
+    P->>SM: assert(current to uploaded)
     P->>DB: save Project(status = uploaded)
     C-->>U: 201 DocumentEntity
 ```
@@ -254,9 +254,9 @@ sequenceDiagram
     U->>PC: POST /api/projects/:id/process
     PC->>PS: startProcessing(id)
     PS->>PS: getProject + find latest document
-    PS->>PR: getPriceMap() → unit_prices
+    PS->>PR: getPriceMap() to unit_prices
     PS->>PS: build & validate ProcessRequest (Zod)
-    PS->>PS: save ProcessingJob(queued); project → queued
+    PS->>PS: save ProcessingJob(queued); project to queued
     PS->>WD: dispatch(payload)
     alt mock (synchronous)
         WD-->>PS: { mode:"mock", result }
@@ -291,7 +291,7 @@ sequenceDiagram
         PS-->>WC: { duplicate:true }
     else first delivery
         PS->>PS: derive next ProjectStatus; assert transition
-        PS->>TX: run(manager ⇒ …)
+        PS->>TX: run transaction callback
         TX->>DB: save WebhookEvent (idempotency marker)
         TX->>DB: save WorkerResult (raw archive)
         TX->>DB: replace PanelSchedules
@@ -299,7 +299,7 @@ sequenceDiagram
         alt worker provided a budget
             TX->>DB: persist worker budget verbatim
         else
-            TX->>DB: recalc budget from detections × prices
+            TX->>DB: recalc budget from detections and prices
         end
         TX->>DB: update Project + ProcessingJob status
         PS-->>WC: { duplicate:false }
@@ -350,7 +350,7 @@ validated, and frozen into the typed `AppConfig` object behind `APP_CONFIG`.
 
 ```mermaid
 flowchart LR
-    env["process.env<br/>(+ .env via @nestjs/config)"] --> build["buildAppConfig()<br/>validate · defaults · fail-fast"]
+    env["process.env<br/>(+ .env via @nestjs/config)"] --> build["buildAppConfig()<br/>validate, defaults, fail-fast"]
     build --> cfg["AppConfig<br/>(APP_CONFIG token)"]
     cfg --> db["DatabaseModule"]
     cfg --> st["StorageModule factory"]
@@ -372,16 +372,16 @@ dependencies, then progressively wires real infrastructure. See
 
 ```mermaid
 flowchart LR
-    subgraph local["🧪 No-Docker local (proven)"]
+    subgraph localMode["No-Docker local (proven)"]
         L1[DB_TYPE=sqljs] --- L2[STORAGE_MODE=local] --- L3[WORKER_MODE=mock]
     end
-    subgraph dockerlocal["Docker local"]
+    subgraph dockerLocal["Docker local"]
         D1[postgres] --- D2[localstack S3/SQS] --- D3[detector container]
     end
-    subgraph prod["Production"]
-        P1[postgres RDS] --- P2[S3] --- P3[SQS → worker]
+    subgraph prodMode["Production"]
+        P1[postgres RDS] --- P2[S3] --- P3[SQS to worker]
     end
-    local --> dockerlocal --> prod
+    localMode --> dockerLocal --> prodMode
 ```
 
 ---
@@ -394,20 +394,20 @@ still to do.
 
 ```mermaid
 flowchart TB
-    subgraph aws[AWS]
-        s3[(S3 bucket<br/>drawings)]
+    subgraph aws["AWS"]
+        s3[("S3 bucket<br/>drawings")]
         sqs[[SQS jobs queue]]
         dlq[[SQS jobs DLQ]]
-        rds[(RDS PostgreSQL 16)]
-        ecrO[ECR: orchestrator image]
-        ecrD[ECR: detector image]
-        sm[Secrets Manager:<br/>worker webhook secret]
+        rds[("RDS PostgreSQL 16")]
+        ecrO["ECR: orchestrator image"]
+        ecrD["ECR: detector image"]
+        sm["Secrets Manager:<br/>worker webhook secret"]
     end
     orch[Orchestrator] --> s3
     orch --> sqs
-    sqs -. maxReceiveCount=3 .-> dlq
+    sqs -.->|maxReceiveCount=3| dlq
     orch --> rds
-    orch -. reads .-> sm
+    orch -.->|reads| sm
     ecrO -.->|deployed image| orch
 ```
 

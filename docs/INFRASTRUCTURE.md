@@ -13,7 +13,7 @@ local container stack in `docker-compose.yml`.
 
 ```mermaid
 flowchart TB
-    subgraph aws[AWS — infra/terraform/main.tf]
+    subgraph aws["AWS - infra/terraform/main.tf"]
         s3[("S3 bucket<br/>var.s3_bucket_name<br/>(drawings)")]
         jobs[["SQS: name_prefix-jobs<br/>visibility 900s"]]
         dlq[["SQS: name_prefix-jobs-dlq"]]
@@ -23,7 +23,7 @@ flowchart TB
         ecrD["ECR: name_prefix/detector"]
         secret["Secrets Manager<br/>name_prefix/worker-webhook-secret"]
     end
-    jobs -. "redrive maxReceiveCount=3" .-> dlq
+    jobs -.->|redrive maxReceiveCount=3| dlq
     rds --- subnets
 ```
 

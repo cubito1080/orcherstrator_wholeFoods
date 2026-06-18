@@ -1,0 +1,33 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: auto_estimator
+      POSTGRES_PASSWORD: auto_estimator
+      POSTGRES_DB: auto_estimator
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  localstack:
+    image: localstack/localstack:3
+    environment:
+      SERVICES: s3,sqs
+      AWS_DEFAULT_REGION: us-east-1
+    ports:
+      - "4566:4566"
+    volumes:
+      - localstack-data:/var/lib/localstack
+
+  detector:
+    build:
+      context: ./services/detector
+    environment:
+      DETECTOR_MODE: mock
+    ports:
+      - "8010:8010"
+
+volumes:
+  postgres-data:
+  localstack-data:
